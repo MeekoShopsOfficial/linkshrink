@@ -3,908 +3,712 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkShrink - Instant URL Shortener</title>
+    <title>LinkShrink 5 - Instant URL Shortener</title>
     <style>
-        :root {
-            --bg-primary: linear-gradient(135deg, #0f1419 0%, #1a1f2e 50%, #0d1117 100%);
-            --bg-secondary: rgba(30, 41, 59, 0.8);
-            --bg-card: rgba(51, 65, 85, 0.9);
-            --text-primary: #e2e8f0;
-            --text-secondary: #94a3b8;
-            --accent-primary: #3b82f6;
-            --accent-secondary: #1e40af;
-            --border-color: rgba(100, 116, 139, 0.3);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-
-        .premium-theme {
-            --bg-primary: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #000000 100%);
-            --bg-secondary: rgba(255, 215, 0, 0.1);
-            --bg-card: rgba(255, 215, 0, 0.15);
-            --text-primary: #ffd700;
-            --text-secondary: #ffed4a;
-            --accent-primary: #ffd700;
-            --accent-secondary: #b45309;
-            --border-color: rgba(255, 215, 0, 0.3);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            color: var(--text-primary);
-            line-height: 1.6;
-            transition: all 0.3s ease;
+            color: #333;
+            overflow-x: hidden;
         }
 
-        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
 
         .header {
             text-align: center;
-            color: var(--text-primary);
-            margin-bottom: 50px;
-            padding: 40px 0;
+            color: white;
+            margin-bottom: 40px;
         }
 
         .logo {
-            font-size: 4rem;
-            font-weight: 900;
-            margin-bottom: 15px;
-            text-shadow: 0 8px 30px rgba(0,0,0,0.4);
-            color: var(--accent-primary);
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
             position: relative;
         }
 
         .premium-crown {
-            display: none;
-            position: absolute;
-            top: -10px;
-            right: -50px;
-            font-size: 2rem;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .premium-theme .premium-crown {
-            display: block;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-10px) rotate(5deg); }
-        }
-
-        .tagline { 
-            font-size: 1.3rem; 
-            color: var(--text-secondary);
-            margin-bottom: 20px; 
-            font-weight: 300;
-        }
-
-        .glass-card {
-            background: var(--bg-card);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
-            padding: 50px;
-            margin-bottom: 40px;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            margin-left: 12px;
             position: relative;
-            overflow: hidden;
+            animation: rotateCrown 3s linear infinite, glowPulse 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px #ffd700);
         }
 
-        .glass-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary), var(--accent-primary));
-            background-size: 200% 100%;
-            animation: shimmer 3s linear infinite;
+        @keyframes rotateCrown {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
+        @keyframes glowPulse {
+            0%, 100% { filter: drop-shadow(0 0 10px #ffd700) brightness(1); }
+            50% { filter: drop-shadow(0 0 20px #ffd700) brightness(1.3); }
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .auth-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
         }
 
         .auth-tabs {
             display: flex;
-            margin-bottom: 40px;
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            padding: 6px;
-            border: 1px solid var(--border-color);
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 4px;
         }
 
         .auth-tab {
             flex: 1;
-            padding: 16px 24px;
+            padding: 12px 20px;
             text-align: center;
-            border-radius: 12px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             font-weight: 600;
-            font-size: 16px;
-            color: var(--text-secondary);
         }
 
         .auth-tab.active {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
-            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
 
-        .auth-form { display: none; }
-        .auth-form.active { display: block; animation: fadeIn 0.5s ease; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .auth-form {
+            display: none;
         }
 
-        .form-group { margin-bottom: 30px; }
-        .form-label { 
-            display: block; 
-            margin-bottom: 12px; 
-            font-weight: 600; 
-            color: var(--text-primary);
-            font-size: 15px;
+        .auth-form.active {
+            display: block;
         }
 
-        .form-input, .url-input, .alias-input {
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-input {
             width: 100%;
-            padding: 18px 24px;
-            border: 2px solid var(--border-color);
-            border-radius: 16px;
+            padding: 14px 18px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
             font-size: 16px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            background: rgba(30, 41, 59, 0.5);
-            color: var(--text-primary);
-            font-weight: 500;
+            transition: all 0.3s ease;
+            background: white;
         }
 
-        .form-input:focus, .url-input:focus, .alias-input:focus {
+        .form-input:focus {
             outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
             transform: translateY(-2px);
         }
 
         .btn {
-            padding: 18px 32px;
+            padding: 14px 28px;
             border: none;
-            border-radius: 16px;
-            font-weight: 700;
+            border-radius: 12px;
+            font-weight: 600;
             font-size: 16px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             text-decoration: none;
             display: inline-block;
             text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .btn:hover::before {
-            left: 100%;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            box-shadow: 0 12px 35px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
         }
 
         .btn-primary:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 50px rgba(59, 130, 246, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5);
         }
 
         .btn-secondary {
-            background: var(--bg-secondary);
-            color: var(--accent-primary);
-            border: 2px solid var(--accent-primary);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            background: #f8f9fa;
+            color: #667eea;
+            border: 2px solid #667eea;
         }
 
         .btn-secondary:hover {
-            background: var(--accent-primary);
+            background: #667eea;
             color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.3);
+            transform: translateY(-2px);
         }
 
-        .main-app { display: none; }
+        .main-app {
+            display: none;
+        }
 
         .user-info {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
-            gap: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
         }
 
         .user-status {
             display: flex;
             align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .status-badge {
-            padding: 12px 20px;
-            border-radius: 25px;
-            font-weight: 700;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            gap: 15px;
         }
 
         .usage-counter {
-            background: linear-gradient(135deg, #059669, #047857);
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
             color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
         }
 
         .premium-badge {
             background: linear-gradient(135deg, #ffd700, #ffed4a);
-            color: #92400e;
-            animation: pulse 2s infinite;
+            color: #8b4513;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        .shorten-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .url-input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 18px 24px;
+            border: 3px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
         }
 
         .custom-alias-section {
-            background: var(--bg-secondary);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            border: 2px dashed var(--border-color);
-            position: relative;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px dashed #dee2e6;
+            transition: all 0.3s ease;
         }
 
         .alias-input-group {
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-top: 20px;
+            gap: 10px;
+            margin-top: 15px;
         }
 
         .domain-prefix {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            background: #667eea;
             color: white;
-            padding: 18px 24px;
-            border-radius: 14px;
-            font-weight: 700;
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-weight: 600;
             white-space: nowrap;
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .alias-input {
+            flex: 1;
+            padding: 14px 18px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
         }
 
         .premium-lock {
-            color: #fbbf24;
-            font-size: 20px;
-            animation: bounce 2s infinite;
+            color: #ffc107;
+            margin-left: 10px;
+            font-size: 18px;
         }
 
-        @keyframes bounce {
-            0%, 20%, 60%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-8px); }
-            80% { transform: translateY(-4px); }
+        .result-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            display: none;
         }
 
         .shortened-url {
-            background: var(--bg-secondary);
-            border: 3px solid var(--accent-primary);
-            border-radius: 20px;
-            padding: 25px;
-            margin: 30px 0;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 3px solid #667eea;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 20px;
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
         }
 
         .url-text {
             font-size: 18px;
-            font-weight: 700;
-            color: var(--accent-primary);
+            font-weight: 600;
+            color: #667eea;
             word-break: break-all;
-            flex-grow: 1;
         }
 
         .copy-btn {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            background: #667eea;
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: 700;
+            font-weight: 600;
             transition: all 0.3s ease;
-            white-space: nowrap;
         }
 
-        .copy-btn:hover { 
+        .copy-btn:hover {
+            background: #5a67d8;
             transform: scale(1.05);
+        }
+
+        .qr-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .qr-code {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            display: inline-block;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            margin: 20px 0;
         }
 
         .modal {
             display: none;
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
             z-index: 1000;
-            animation: modalFadeIn 0.4s ease;
-        }
-
-        @keyframes modalFadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            animation: fadeIn 0.3s ease;
         }
 
         .modal-content {
             position: absolute;
-            top: 50%; left: 50%;
+            top: 50%;
+            left: 50%;
             transform: translate(-50%, -50%);
-            background: var(--bg-card);
-            padding: 50px;
-            border-radius: 24px;
-            max-width: 600px;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
             width: 90%;
             text-align: center;
-            box-shadow: 0 50px 100px rgba(0, 0, 0, 0.5);
-            animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid var(--border-color);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
         }
 
-        @keyframes modalSlideIn {
-            from { transform: translate(-50%, -60%) scale(0.8); opacity: 0; }
-            to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        .premium-modal {
-            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
-            border: 2px solid #ffd700;
-            position: relative;
-            overflow: hidden;
+        @keyframes slideIn {
+            from { transform: translate(-50%, -60%) scale(0.8); }
+            to { transform: translate(-50%, -50%) scale(1); }
         }
 
-        .premium-modal::before {
-            content: '';
+        .modal-header {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .modal-text {
+            margin-bottom: 25px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .close-btn {
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,215,0,0.1) 0%, transparent 70%);
-            animation: premiumShine 4s linear infinite;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
         }
 
-        @keyframes premiumShine {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .premium-modal * {
-            position: relative;
-            z-index: 1;
-        }
-
-        .modal-header { 
-            font-size: 28px; 
-            font-weight: 900; 
-            margin-bottom: 20px; 
-            color: var(--text-primary);
-        }
-
-        .premium-modal .modal-header {
-            color: #ffd700;
-            text-shadow: 0 2px 4px rgba(255, 215, 0, 0.3);
-        }
-
-        .modal-text { 
-            margin-bottom: 30px; 
-            color: var(--text-secondary);
-            line-height: 1.8;
-            font-size: 16px;
-        }
-
-        .premium-modal .modal-text {
-            color: #ffed4a;
-        }
-
-        .close-btn { 
-            position: absolute; 
-            top: 20px; 
-            right: 25px; 
-            background: none; 
-            border: none; 
-            font-size: 28px; 
-            cursor: pointer; 
-            color: var(--text-secondary);
-            transition: color 0.3s ease;
-        }
-
-        .close-btn:hover {
-            color: var(--text-primary);
-        }
-
-        .premium-modal .close-btn {
-            color: #ffd700;
+        .premium-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
         }
 
         .code-input {
             font-family: 'Courier New', monospace;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
             text-transform: uppercase;
             text-align: center;
-            font-size: 20px;
-            font-weight: 700;
-            background: var(--bg-secondary);
+            font-size: 18px;
+            font-weight: 600;
         }
 
         .success-animation {
-            color: #10b981;
-            font-size: 80px;
-            margin-bottom: 25px;
-            animation: successBounce 0.8s ease;
+            color: #28a745;
+            font-size: 60px;
+            margin-bottom: 20px;
+            animation: bounce 0.6s ease;
         }
 
-        @keyframes successBounce {
-            0%, 20%, 60%, 100% { transform: translateY(0) scale(1); }
-            40% { transform: translateY(-30px) scale(1.2); }
-            80% { transform: translateY(-15px) scale(1.1); }
+        @keyframes bounce {
+            0%, 20%, 60%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            80% { transform: translateY(-10px); }
         }
 
-        .premium-features {
-            margin: 30px 0;
-            padding: 25px;
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            border-left: 5px solid var(--accent-primary);
-        }
-
-        .feature-list {
-            list-style: none;
-            text-align: left;
-            margin: 15px 0;
-        }
-
-        .feature-list li {
-            margin: 12px 0;
-            padding-left: 30px;
-            position: relative;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .feature-list li::before {
-            content: '⭐';
-            position: absolute;
-            left: 0;
-            font-size: 16px;
-        }
-
-        .premium-theme .feature-list li::before {
-            content: '👑';
-        }
-
-        .redirect-notice {
+        .floating-elements {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--bg-card);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 25px 80px rgba(0,0,0,0.5);
-            text-align: center;
-            border: 1px solid var(--border-color);
-            max-width: 500px;
-            width: 90%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
         }
 
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid var(--border-color);
-            border-top: 4px solid var(--accent-primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
+        .floating-shape {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
         }
 
         @media (max-width: 768px) {
-            .container { padding: 15px; }
-            .logo { font-size: 2.8rem; }
-            .glass-card { padding: 30px; }
-            .user-info { flex-direction: column; align-items: stretch; }
-            .user-status { justify-content: center; }
-            .alias-input-group { flex-direction: column; }
-            .domain-prefix { text-align: center; }
-            .shortened-url { flex-direction: column; gap: 15px; }
-            .modal-content { padding: 30px; }
+            .container {
+                padding: 15px;
+            }
+            
+            .logo {
+                font-size: 2.2rem;
+            }
+            
+            .auth-section,
+            .shorten-section,
+            .result-section,
+            .premium-section {
+                padding: 25px;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .alias-input-group {
+                flex-direction: column;
+            }
+            
+            .domain-prefix {
+                width: 100%;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="floating-elements">
+        <div class="floating-shape" style="top: 10%; left: 10%; width: 60px; height: 60px; background: rgba(255,255,255,0.1); border-radius: 50%; animation-delay: 0s;"></div>
+        <div class="floating-shape" style="top: 70%; right: 10%; width: 40px; height: 40px; background: rgba(255,255,255,0.1); border-radius: 50%; animation-delay: 2s;"></div>
+        <div class="floating-shape" style="top: 40%; left: 80%; width: 50px; height: 50px; background: rgba(255,255,255,0.1); border-radius: 50%; animation-delay: 4s;"></div>
+    </div>
+
     <div class="container">
         <div class="header">
             <div class="logo">
-                LinkShrink
-                <span class="premium-crown">👑</span>
+                LinkShrink 5
+                <span class="premium-crown" id="premiumCrown" style="display: none;">👑</span>
             </div>
-            <div class="tagline">Transform your long URLs into powerful, trackable short links</div>
+            <div class="tagline">Shorten your links instantly.</div>
         </div>
 
         <!-- Authentication Section -->
-        <div class="glass-card" id="authSection">
+        <div class="auth-section" id="authSection">
             <div class="auth-tabs">
-                <div class="auth-tab active" onclick="switchTab('login')">Sign In</div>
-                <div class="auth-tab" onclick="switchTab('register')">Create Account</div>
+                <div class="auth-tab active" data-tab="login">Login</div>
+                <div class="auth-tab" data-tab="register">Sign Up</div>
             </div>
 
             <div class="auth-form active" id="loginForm">
                 <div class="form-group">
-                    <label class="form-label">Email Address</label>
+                    <label class="form-label">Email</label>
                     <input type="email" class="form-input" id="loginEmail" placeholder="Enter your email">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Password</label>
                     <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password">
                 </div>
-                <button class="btn btn-primary" style="width: 100%;" onclick="handleAuth('login')">Sign In</button>
+                <button class="btn btn-primary" style="width: 100%;" data-action="login">Login</button>
             </div>
 
             <div class="auth-form" id="registerForm">
                 <div class="form-group">
                     <label class="form-label">Username</label>
-                    <input type="text" class="form-input" id="registerUsername" placeholder="Choose a unique username">
+                    <input type="text" class="form-input" id="registerUsername" placeholder="Choose a username">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Email Address</label>
+                    <label class="form-label">Email</label>
                     <input type="email" class="form-input" id="registerEmail" placeholder="Enter your email">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Password</label>
-                    <input type="password" class="form-input" id="registerPassword" placeholder="Create a secure password">
+                    <input type="password" class="form-input" id="registerPassword" placeholder="Create a password">
                 </div>
-                <button class="btn btn-primary" style="width: 100%;" onclick="handleAuth('register')">Create Account</button>
+                <button class="btn btn-primary" style="width: 100%;" data-action="register">Sign Up</button>
             </div>
         </div>
 
         <!-- Main App -->
         <div class="main-app" id="mainApp">
             <!-- User Info -->
-            <div class="glass-card user-info">
+            <div class="user-info">
                 <div class="user-status">
-                    <span id="welcomeText" style="font-size: 18px; font-weight: 700;">Welcome back!</span>
-                    <div class="status-badge usage-counter" id="usageCounter">Links created: 0/20 this hour</div>
-                    <div class="status-badge premium-badge" id="premiumBadge" style="display: none;">Premium Active</div>
+                    <span id="welcomeText">Welcome back!</span>
+                    <div class="usage-counter" id="usageCounter">Links created: 0/20 this hour</div>
+                    <div class="premium-badge" id="premiumBadge" style="display: none;">
+                        👑 Premium Active
+                    </div>
                 </div>
-                <button class="btn btn-secondary" onclick="handleLogout()">Sign Out</button>
+                <button class="btn btn-secondary" data-action="logout">Logout</button>
             </div>
 
             <!-- URL Shortening Section -->
-            <div class="glass-card">
-                <h2 style="margin-bottom: 30px; color: var(--text-primary); font-size: 2rem; font-weight: 800;">Create Short Link</h2>
+            <div class="shorten-section">
+                <h2 style="margin-bottom: 25px; color: #333; font-size: 1.8rem;">Shorten Your URL</h2>
                 
-                <div class="form-group">
-                    <input type="url" class="url-input" id="urlInput" placeholder="Paste your long URL here..." style="padding: 24px; font-size: 18px;" />
+                <div class="url-input-group">
+                    <input type="url" class="url-input" id="urlInput" placeholder="Paste your long URL here..." />
                 </div>
 
                 <div class="custom-alias-section">
-                    <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                        <label style="font-weight: 700; color: var(--text-primary); font-size: 16px;">Custom Alias (Premium Feature)</label>
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                        <label style="font-weight: 600; color: #333;">Custom Alias (Optional)</label>
                         <span class="premium-lock" id="premiumLock">🔒</span>
                     </div>
-                    <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 15px;">Create a memorable, branded short link</p>
+                    <p style="color: #666; margin-bottom: 15px;">Customize the end of your shortened URL</p>
                     <div class="alias-input-group">
                         <div class="domain-prefix">lnkshrink.io/</div>
-                        <input type="text" class="alias-input" id="customAlias" placeholder="your-custom-name" 
-                               onclick="checkPremiumAlias()" oninput="checkPremiumAlias()" style="font-weight: 700;">
+                        <input type="text" class="alias-input" id="customAlias" placeholder="your-custom-alias" 
+                               data-action="check-premium">
                     </div>
                 </div>
 
-                <button class="btn btn-primary" style="width: 100%; font-size: 20px; padding: 24px;" onclick="shortenUrl()">
-                    Create Short Link
+                <button class="btn btn-primary" style="width: 100%; font-size: 18px; padding: 16px;" data-action="shorten">
+                    🚀 Shorten URL
                 </button>
             </div>
 
             <!-- Result Section -->
-            <div class="glass-card" id="resultSection" style="display: none;">
-                <h3 style="margin-bottom: 25px; color: var(--text-primary); font-size: 1.5rem; font-weight: 700;">Your Short Link is Ready!</h3>
+            <div class="result-section" id="resultSection">
+                <h3 style="margin-bottom: 20px; color: #333;">Your Shortened URL</h3>
                 <div class="shortened-url">
                     <div class="url-text" id="shortenedUrl"></div>
-                    <button class="copy-btn" onclick="copyUrl()">Copy Link</button>
+                    <button class="copy-btn" data-action="copy">📋 Copy</button>
+                </div>
+                
+                <div class="qr-section">
+                    <h4 style="margin-bottom: 15px; color: #333;">QR Code</h4>
+                    <div class="qr-code" id="qrCode"></div>
+                    <br>
+                    <button class="btn btn-secondary" data-action="download-qr">📥 Download QR Code</button>
                 </div>
             </div>
 
             <!-- Premium Section -->
-            <div class="glass-card">
-                <h3 style="margin-bottom: 25px; color: var(--text-primary); text-align: center; font-size: 1.8rem; font-weight: 800;">Unlock Premium Features</h3>
-                
-                <div class="premium-features">
-                    <h4 style="color: var(--accent-primary); margin-bottom: 15px; font-weight: 800;">Premium Benefits:</h4>
-                    <ul class="feature-list">
-                        <li>Unlimited link creation (no 20/hour limit)</li>
-                        <li>Custom branded aliases (your-name.lnkshrink.io)</li>
-                        <li>Advanced click analytics & tracking</li>
-                        <li>Link expiration dates & scheduling</li>
-                        <li>Bulk link creation & management</li>
-                        <li>Password-protected links</li>
-                        <li>Priority support & faster processing</li>
-                        <li>API access for developers</li>
-                    </ul>
-                </div>
+            <div class="premium-section">
+                <h3 style="margin-bottom: 20px; color: #333; text-align: center;">🎉 Upgrade to Premium</h3>
+                <p style="text-align: center; color: #666; margin-bottom: 25px;">
+                    Enter your premium code to unlock unlimited link creation and custom aliases!
+                </p>
                 
                 <div class="form-group">
                     <input type="text" class="form-input code-input" id="premiumCode" 
-                           placeholder="XXXX-XXXX-XXXX" maxlength="19" oninput="formatCode(this)">
+                           placeholder="XXXX-XXXX-XXXX" maxlength="19">
                 </div>
-                <button class="btn btn-primary" style="width: 100%; font-size: 18px;" onclick="redeemPremium()">
-                    Activate Premium Access
+                <button class="btn btn-primary" style="width: 100%;" data-action="redeem-premium">
+                    ✨ Activate Premium
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Premium Modal -->
+    <!-- Premium Required Modal -->
     <div class="modal" id="premiumModal">
-        <div class="modal-content premium-modal">
-            <button class="close-btn" onclick="closeModal('premiumModal')">&times;</button>
-            <div class="modal-header">Premium Feature Locked</div>
+        <div class="modal-content">
+            <button class="close-btn" data-action="close-modal" data-modal="premiumModal">&times;</button>
+            <div class="modal-header">🔒 Premium Feature</div>
             <div class="modal-text">
-                Custom aliases are exclusive to premium members. Upgrade now to create branded, memorable short links that boost your professional image!
+                Custom aliases are available for premium users only. Upgrade to premium to create personalized shortened URLs!
             </div>
-            <button class="btn btn-primary" onclick="closeModal('premiumModal')" style="background: linear-gradient(135deg, #ffd700, #b45309); margin-top: 15px;">Upgrade to Premium</button>
+            <button class="btn btn-primary" data-action="close-modal" data-modal="premiumModal">Got it</button>
         </div>
     </div>
 
     <!-- Success Modal -->
     <div class="modal" id="successModal">
         <div class="modal-content">
-            <button class="close-btn" onclick="closeModal('successModal')">&times;</button>
+            <button class="close-btn" data-action="close-modal" data-modal="successModal">&times;</button>
             <div class="success-animation">🎉</div>
             <div class="modal-header">Welcome to Premium!</div>
             <div class="modal-text">
-                Congratulations! You now have unlimited link creation, custom aliases, advanced analytics, and all premium features. Start creating powerful short links!
+                Congratulations! You now have unlimited link creation and access to custom aliases. Your premium crown is now active!
             </div>
-            <button class="btn btn-primary" onclick="closeModal('successModal')">Start Creating Links</button>
+            <button class="btn btn-primary" data-action="close-modal" data-modal="successModal">Awesome!</button>
         </div>
     </div>
 
     <!-- Rate Limit Modal -->
     <div class="modal" id="rateLimitModal">
         <div class="modal-content">
-            <button class="close-btn" onclick="closeModal('rateLimitModal')">&times;</button>
-            <div class="modal-header">Free Limit Reached</div>
+            <button class="close-btn" data-action="close-modal" data-modal="rateLimitModal">&times;</button>
+            <div class="modal-header">⏰ Rate Limit Reached</div>
             <div class="modal-text">
-                You've created 20 links this hour (free limit). Upgrade to premium for unlimited link creation, custom aliases, and advanced features!
+                You've reached the free limit of 20 links per hour. Upgrade to premium for unlimited link creation!
             </div>
-            <button class="btn btn-primary" onclick="closeModal('rateLimitModal')">Upgrade to Premium</button>
+            <button class="btn btn-primary" data-action="close-modal" data-modal="rateLimitModal">Upgrade to Premium</button>
         </div>
     </div>
 
-    <!-- Redirect Notice -->
-    <div class="redirect-notice" id="redirectNotice" style="display: none;">
-        <h3 style="color: var(--text-primary); margin-bottom: 20px;">Redirecting...</h3>
-        <div class="spinner"></div>
-        <p style="color: var(--text-secondary);">Taking you to your destination</p>
-    </div>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
     <script>
-        // App State with user-specific data storage
-        let userData = {
-            currentUser: null,
-            users: {} // Store data per user: { email: { userLinks: [], linkUsageCount: 0, isPremium: false, etc } }
-        };
-
-        // Premium codes
-        const PREMIUM_CODES = [
-            'CCLN-OZ76-O6F6', 'IW1V-IHZL-EAUH', '6EWJ-0I2D-37B6', 'OEET-3WC0-9TXR', '0DS4-QB5Y-COOX',
-            'TEST-PREM-CODE', 'DEMO-GOLD-USER'
-        ];
-
-        // Initialize app
-        window.addEventListener('load', function() {
-            loadUserData();
-            checkForRedirect();
-        });
-
-        function checkForRedirect() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const redirectTo = urlParams.get('redirect');
-            
-            if (redirectTo) {
-                showRedirectNotice();
-                setTimeout(() => {
-                    try {
-                        const decodedUrl = decodeURIComponent(redirectTo);
-                        window.location.href = decodedUrl;
-                    } catch (e) {
-                        alert('Invalid redirect URL');
-                        hideRedirectNotice();
-                    }
-                }, 2000);
-                return;
-            }
-
-            // Auto-login if user data exists
-            if (userData.currentUser) {
-                showMainApp();
-                updateUI();
-            } else {
-                showAuthSection();
-            }
-        }
-
-        function showRedirectNotice() {
-            document.getElementById('redirectNotice').style.display = 'block';
-            document.body.style.overflow = 'hidden';
-        }
-
-        function hideRedirectNotice() {
-            document.getElementById('redirectNotice').style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-
-        function loadUserData() {
-            try {
-                const saved = localStorage.getItem('linkShrinkData');
-                if (saved) {
-                    const savedData = JSON.parse(saved);
-                    userData = { ...userData, ...savedData };
-                    
-                    // Ensure users object exists
-                    if (!userData.users) {
-                        userData.users = {};
-                    }
-                }
-            } catch (e) {
-                console.log('localStorage not available, using memory storage');
-                userData.users = {};
-            }
-        }
-
-        function saveUserData() {
-            try {
-                localStorage.setItem('linkShrinkData', JSON.stringify(userData));
-            } catch (e) {
-                console.log('localStorage not available, data saved in memory only');
-            }
-        }
-
-        function getCurrentUserData() {
-            if (!userData.currentUser) return null;
-            
-            const userKey = userData.currentUser.email;
-            if (!userData.users[userKey]) {
-                userData.users[userKey] = {
-                    userLinks: [],
-                    linkUsageCount: 0,
-                    lastHourTimestamp: Date.now(),
-                    isPremium: false
-                };
-            }
-            return userData.users[userKey];
-        }
-
-        function switchTab(tab) {
+        // Define functions globally first to avoid reference errors
+        function switchAuthTab(tab) {
+            // Remove active class from all tabs and forms
             document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
             
+            // Add active class to the correct tab
+            const tabs = document.querySelectorAll('.auth-tab');
             if (tab === 'login') {
-                document.querySelectorAll('.auth-tab')[0].classList.add('active');
+                tabs[0].classList.add('active');
                 document.getElementById('loginForm').classList.add('active');
-            } else {
-                document.querySelectorAll('.auth-tab')[1].classList.add('active');
+            } else if (tab === 'register') {
+                tabs[1].classList.add('active');
                 document.getElementById('registerForm').classList.add('active');
             }
         }
 
-        function handleAuth(type) {
-            let username, email, password;
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
             
-            if (type === 'login') {
-                email = document.getElementById('loginEmail').value;
-                password = document.getElementById('loginPassword').value;
-                if (!email || !password) return alert('Please fill in all fields');
-                username = email.split('@')[0];
-            } else {
-                username = document.getElementById('registerUsername').value;
-                email = document.getElementById('registerEmail').value;
-                password = document.getElementById('registerPassword').value;
-                if (!username || !email || !password) return alert('Please fill in all fields');
+            if (!email || !password) {
+                alert('Please fill in all fields');
+                return;
             }
             
-            userData.currentUser = { username, email };
-            
-            // Initialize user data if they don't exist
-            if (!userData.users[email]) {
-                userData.users[email] = {
-                    userLinks: [],
-                    linkUsageCount: 0,
-                    lastHourTimestamp: Date.now(),
-                    isPremium: false
-                };
-            }
-            
-            saveUserData();
+            // Simple demo authentication - accept any non-empty credentials
+            currentUser = { username: email.split('@')[0], email: email };
             showMainApp();
-            updateUI();
+            loadUserData();
+        }
+
+        function handleRegister() {
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            if (!username || !email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            currentUser = { username, email };
+            showMainApp();
+            loadUserData();
         }
 
         function handleLogout() {
-            userData.currentUser = null;
-            saveUserData();
-            document.body.classList.remove('premium-theme');
+            currentUser = null;
+            isPremium = false;
+            userLinks = [];
+            linkUsageCount = 0;
             showAuthSection();
         }
 
-        function showAuthSection() {
-            document.getElementById('authSection').style.display = 'block';
-            document.getElementById('mainApp').style.display = 'none';
-        }
-
-        function showMainApp() {
-            document.getElementById('authSection').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
-        }
-
-        function updateUI() {
-            if (!userData.currentUser) return;
-            
-            const currentUserData = getCurrentUserData();
-            if (!currentUserData) return;
-            
-            document.getElementById('welcomeText').textContent = `Welcome, ${userData.currentUser.username}!`;
-            document.getElementById('usageCounter').textContent = currentUserData.isPremium ? 
-                'Premium - Unlimited' : `Links created: ${currentUserData.linkUsageCount}/20 this hour`;
-            
-            if (currentUserData.isPremium) {
-                document.body.classList.add('premium-theme');
-                document.getElementById('premiumBadge').style.display = 'flex';
-                document.getElementById('premiumLock').style.display = 'none';
-                document.getElementById('customAlias').placeholder = 'Enter your custom alias';
-            } else {
-                document.body.classList.remove('premium-theme');
-                document.getElementById('premiumBadge').style.display = 'none';
-                document.getElementById('premiumLock').style.display = 'inline';
-            }
-        }
-
-        function checkPremiumAlias() {
-            const currentUserData = getCurrentUserData();
-            if (!currentUserData || (!currentUserData.isPremium && document.getElementById('customAlias').value)) {
+        function checkPremiumForAlias() {
+            if (!isPremium && document.getElementById('customAlias').value) {
                 document.getElementById('customAlias').value = '';
                 showModal('premiumModal');
             }
@@ -913,112 +717,108 @@
         function shortenUrl() {
             const url = document.getElementById('urlInput').value.trim();
             const customAlias = document.getElementById('customAlias').value.trim();
-            const currentUserData = getCurrentUserData();
             
-            if (!currentUserData) return alert('Please log in first');
-            if (!url) return alert('Please enter a URL');
+            if (!url) {
+                alert('Please enter a URL');
+                return;
+            }
             
-            try { new URL(url); } catch { return alert('Please enter a valid URL'); }
+            // Validate URL
+            try {
+                new URL(url);
+            } catch {
+                alert('Please enter a valid URL');
+                return;
+            }
             
-            if (!currentUserData.isPremium) {
-                if (Date.now() - currentUserData.lastHourTimestamp > 3600000) {
-                    currentUserData.linkUsageCount = 0;
-                    currentUserData.lastHourTimestamp = Date.now();
+            // Check rate limit for free users
+            if (!isPremium) {
+                if (Date.now() - lastHourTimestamp > 3600000) {
+                    linkUsageCount = 0;
+                    lastHourTimestamp = Date.now();
                 }
-                if (currentUserData.linkUsageCount >= 20) return showModal('rateLimitModal');
+                
+                if (linkUsageCount >= 20) {
+                    showModal('rateLimitModal');
+                    return;
+                }
             }
             
-            if (customAlias && !currentUserData.isPremium) return showModal('premiumModal');
+            // Check if custom alias requires premium
+            if (customAlias && !isPremium) {
+                showModal('premiumModal');
+                return;
+            }
             
+            // Generate shortened URL
             const shortCode = customAlias || generateShortCode();
-            const displayUrl = `lnkshrink.io/${shortCode}`;
-            const actualRedirectUrl = `${window.location.origin}${window.location.pathname}?redirect=${encodeURIComponent(url)}`;
+            const shortenedUrl = `https://lnkshrink.io/${shortCode}`;
             
-            if (currentUserData.userLinks.find(link => link.shortCode === shortCode)) {
-                return alert('This alias is already taken. Please choose another one.');
+            // Check if alias already exists
+            if (userLinks.find(link => link.shortCode === shortCode)) {
+                alert('This alias is already taken. Please choose another one.');
+                return;
             }
             
+            // Save the link
             const linkData = {
                 id: Date.now(),
                 originalUrl: url,
                 shortCode: shortCode,
-                displayUrl: displayUrl,
-                redirectUrl: actualRedirectUrl,
+                shortenedUrl: shortenedUrl,
                 clicks: 0,
                 createdAt: new Date().toISOString()
             };
             
-            currentUserData.userLinks.push(linkData);
-            if (!currentUserData.isPremium) currentUserData.linkUsageCount++;
+            userLinks.push(linkData);
+            if (!isPremium) linkUsageCount++;
             
             saveUserData();
             updateUI();
+            
+            // Display result
             displayResult(linkData);
             
+            // Clear inputs
             document.getElementById('urlInput').value = '';
             document.getElementById('customAlias').value = '';
         }
 
-        function generateShortCode() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            let result = '';
-            for (let i = 0; i < 6; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return result;
-        }
-
-        function displayResult(linkData) {
-            // Show the friendly URL but copy the redirect URL
-            document.getElementById('shortenedUrl').textContent = linkData.displayUrl;
-            document.getElementById('shortenedUrl').dataset.copyUrl = linkData.redirectUrl;
-            document.getElementById('resultSection').style.display = 'block';
-            
-            document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
-        }
-
         function copyUrl() {
-            const displayElement = document.getElementById('shortenedUrl');
-            const urlToCopy = displayElement.dataset.copyUrl || displayElement.textContent;
-            
-            navigator.clipboard.writeText(urlToCopy).then(() => {
+            const url = document.getElementById('shortenedUrl').textContent;
+            navigator.clipboard.writeText(url).then(() => {
                 const btn = document.querySelector('.copy-btn');
                 const originalText = btn.textContent;
-                btn.textContent = 'Copied!';
-                btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                btn.textContent = '✅ Copied!';
+                btn.style.background = '#28a745';
                 
                 setTimeout(() => {
                     btn.textContent = originalText;
-                    btn.style.background = '';
-                }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy: ', err);
-                // Fallback for older browsers
-                const textArea = document.createElement('textarea');
-                textArea.value = urlToCopy;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                
-                const btn = document.querySelector('.copy-btn');
-                const originalText = btn.textContent;
-                btn.textContent = 'Copied!';
-                setTimeout(() => {
-                    btn.textContent = originalText;
+                    btn.style.background = '#667eea';
                 }, 2000);
             });
         }
 
+        function downloadQR() {
+            const canvas = document.querySelector('#qrCode canvas');
+            if (canvas) {
+                const link = document.createElement('a');
+                link.download = 'qrcode.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            }
+        }
+
         function redeemPremium() {
             const code = document.getElementById('premiumCode').value.trim().toUpperCase();
-            const currentUserData = getCurrentUserData();
             
-            if (!currentUserData) return alert('Please log in first');
-            if (!code) return alert('Please enter a premium code');
+            if (!code) {
+                alert('Please enter a premium code');
+                return;
+            }
             
             if (PREMIUM_CODES.includes(code)) {
-                currentUserData.isPremium = true;
+                isPremium = true;
                 saveUserData();
                 updateUI();
                 showModal('successModal');
@@ -1038,15 +838,339 @@
             document.body.style.overflow = 'auto';
         }
 
-        function formatCode(input) {
-            let value = input.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+        // App State
+        let currentUser = null;
+        let userLinks = [];
+        let linkUsageCount = 0;
+        let lastHourTimestamp = Date.now();
+        let isPremium = false;
+
+        // Premium codes
+        const PREMIUM_CODES = [
+            'CCLN-OZ76-O6F6', 'IW1V-IHZL-EAUH', '6EWJ-0I2D-37B6', 'OEET-3WC0-9TXR', '0DS4-QB5Y-COOX',
+            '8FJL-AV84-I5P1', '6UKZ-6P4O-Z524', 'CMW8-ER2G-P0TP', 'SEBR-9F64-HIYL', '306M-0NXM-9HC4',
+            'PQI9-P7O8-9R8J', 'JH2Q-6T8Y-ZL74', '5O86-WLMI-6DKA', 'U4ND-7Z3S-14E2', 'Q8ZF-2W3N-SK6Y',
+            'RNX2-K19H-0T8E', 'ZC0R-4K7W-P9Q5', 'L3H9-S7I2-XM5N', '4Y9J-KM1V-W2Q8', 'E2X0-8P7K-N6H5',
+            'VR5Z-L8P1-Y3XQ', 'B8D9-4Y5N-QZ6H', 'N7R1-C2M6-5PZQ', '2K6Q-J7D8-XR5M', 'Y1P0-Z3N5-8W6Q',
+            'G8M1-5T2X-NQ3L', 'Z7W9-0C8K-L5XJ', 'Q0P5-L9R1-X7K2', 'T4J8-H1W2-N3V7', 'M2D6-K7N0-5XQ9'
+        ];
+
+        // Initialize app
+        window.onload = function() {
+            checkAuthStatus();
+            loadUserData();
+            setupEventListeners();
+        };
+
+        function setupEventListeners() {
+            // Auth tab switching
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    switchAuthTab(this.dataset.tab);
+                });
+            });
+
+            // Button clicks using data-action attributes
+            document.addEventListener('click', function(e) {
+                const action = e.target.dataset.action;
+                if (!action) return;
+
+                switch(action) {
+                    case 'login':
+                        handleLogin();
+                        break;
+                    case 'register':
+                        handleRegister();
+                        break;
+                    case 'logout':
+                        handleLogout();
+                        break;
+                    case 'shorten':
+                        shortenUrl();
+                        break;
+                    case 'copy':
+                        copyUrl();
+                        break;
+                    case 'download-qr':
+                        downloadQR();
+                        break;
+                    case 'redeem-premium':
+                        redeemPremium();
+                        break;
+                    case 'close-modal':
+                        closeModal(e.target.dataset.modal);
+                        break;
+                }
+            });
+
+            // Custom alias input events
+            const customAliasInput = document.getElementById('customAlias');
+            if (customAliasInput) {
+                customAliasInput.addEventListener('click', checkPremiumForAlias);
+                customAliasInput.addEventListener('input', checkPremiumForAlias);
+            }
+        }
+
+        function checkAuthStatus() {
+            // Since we don't have localStorage access, we'll start with the auth section
+            showAuthSection();
+        }
+
+        function loadUserData() {
+            if (!currentUser) return;
+            
+            // Initialize with default values since we don't have localStorage
+            userLinks = [];
+            linkUsageCount = 0;
+            lastHourTimestamp = Date.now();
+            isPremium = false;
+            
+            updateUI();
+        }
+
+        function saveUserData() {
+            // In a real implementation, this would save to a backend
+            // For now, we just keep data in memory during the session
+        }
+
+        function updateUI() {
+            if (!currentUser) return;
+            
+            document.getElementById('welcomeText').textContent = `Welcome, ${currentUser.username}!`;
+            document.getElementById('usageCounter').textContent = isPremium ? 
+                'Unlimited (Premium)' : `Links created: ${linkUsageCount}/20 this hour`;
+            
+            if (isPremium) {
+                document.getElementById('premiumBadge').style.display = 'flex';
+                document.getElementById('premiumCrown').style.display = 'inline-block';
+                document.getElementById('premiumLock').style.display = 'none';
+                document.getElementById('customAlias').placeholder = 'Enter your custom alias';
+            }
+        }
+
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Simple demo authentication - accept any non-empty credentials
+            currentUser = { username: email.split('@')[0], email: email };
+            showMainApp();
+            loadUserData();
+        }
+
+        function handleRegister() {
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            if (!username || !email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            currentUser = { username, email };
+            showMainApp();
+            loadUserData();
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            isPremium = false;
+            userLinks = [];
+            linkUsageCount = 0;
+            showAuthSection();
+        }
+
+        function showAuthSection() {
+            document.getElementById('authSection').style.display = 'block';
+            document.getElementById('mainApp').style.display = 'none';
+        }
+
+        function showMainApp() {
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+        }
+
+        function checkPremiumForAlias() {
+            if (!isPremium && document.getElementById('customAlias').value) {
+                document.getElementById('customAlias').value = '';
+                showModal('premiumModal');
+            }
+        }
+
+        function shortenUrl() {
+            const url = document.getElementById('urlInput').value.trim();
+            const customAlias = document.getElementById('customAlias').value.trim();
+            
+            if (!url) {
+                alert('Please enter a URL');
+                return;
+            }
+            
+            // Validate URL
+            try {
+                new URL(url);
+            } catch {
+                alert('Please enter a valid URL');
+                return;
+            }
+            
+            // Check rate limit for free users
+            if (!isPremium) {
+                if (Date.now() - lastHourTimestamp > 3600000) {
+                    linkUsageCount = 0;
+                    lastHourTimestamp = Date.now();
+                }
+                
+                if (linkUsageCount >= 20) {
+                    showModal('rateLimitModal');
+                    return;
+                }
+            }
+            
+            // Check if custom alias requires premium
+            if (customAlias && !isPremium) {
+                showModal('premiumModal');
+                return;
+            }
+            
+            // Generate shortened URL
+            const shortCode = customAlias || generateShortCode();
+            const shortenedUrl = `https://lnkshrink.io/${shortCode}`;
+            
+            // Check if alias already exists
+            if (userLinks.find(link => link.shortCode === shortCode)) {
+                alert('This alias is already taken. Please choose another one.');
+                return;
+            }
+            
+            // Save the link
+            const linkData = {
+                id: Date.now(),
+                originalUrl: url,
+                shortCode: shortCode,
+                shortenedUrl: shortenedUrl,
+                clicks: 0,
+                createdAt: new Date().toISOString()
+            };
+            
+            userLinks.push(linkData);
+            if (!isPremium) linkUsageCount++;
+            
+            saveUserData();
+            updateUI();
+            
+            // Display result
+            displayResult(linkData);
+            
+            // Clear inputs
+            document.getElementById('urlInput').value = '';
+            document.getElementById('customAlias').value = '';
+        }
+
+        function generateShortCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < 6; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        function displayResult(linkData) {
+            document.getElementById('shortenedUrl').textContent = linkData.shortenedUrl;
+            document.getElementById('resultSection').style.display = 'block';
+            
+            // Generate QR code
+            const qrContainer = document.getElementById('qrCode');
+            qrContainer.innerHTML = '';
+            
+            QRCode.toCanvas(qrContainer, linkData.shortenedUrl, {
+                width: 200,
+                height: 200,
+                colorDark: '#667eea',
+                colorLight: '#ffffff'
+            }, function(error) {
+                if (error) console.error(error);
+            });
+            
+            // Scroll to result
+            document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copyUrl() {
+            const url = document.getElementById('shortenedUrl').textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                btn.style.background = '#28a745';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#667eea';
+                }, 2000);
+            });
+        }
+
+        function downloadQR() {
+            const canvas = document.querySelector('#qrCode canvas');
+            if (canvas) {
+                const link = document.createElement('a');
+                link.download = 'qrcode.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            }
+        }
+
+        function redeemPremium() {
+            const code = document.getElementById('premiumCode').value.trim().toUpperCase();
+            
+            if (!code) {
+                alert('Please enter a premium code');
+                return;
+            }
+            
+            if (PREMIUM_CODES.includes(code)) {
+                isPremium = true;
+                saveUserData();
+                updateUI();
+                showModal('successModal');
+                document.getElementById('premiumCode').value = '';
+            } else {
+                alert('Invalid premium code. Please check and try again.');
+            }
+        }
+
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Auto-format premium code input
+        document.getElementById('premiumCode').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
             let formatted = '';
+            
             for (let i = 0; i < value.length; i++) {
-                if (i > 0 && i % 4 === 0) formatted += '-';
+                if (i > 0 && i % 4 === 0) {
+                    formatted += '-';
+                }
                 formatted += value[i];
             }
-            input.value = formatted;
-        }
+            
+            e.target.value = formatted;
+        });
 
         // Close modals when clicking outside
         window.addEventListener('click', function(e) {
@@ -1056,16 +1180,16 @@
             }
         });
 
-        // Handle Enter key
+        // Handle Enter key for forms
         document.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 const activeForm = document.querySelector('.auth-form.active');
                 if (activeForm) {
-                    if (activeForm.id === 'loginForm') handleAuth('login');
-                    else if (activeForm.id === 'registerForm') handleAuth('register');
+                    if (activeForm.id === 'loginForm') {
+                        handleLogin();
+                    } else if (activeForm.id === 'registerForm') {
+                        handleRegister();
+                    }
                 }
             }
         });
-    </script>
-</body>
-</html>
