@@ -722,13 +722,10 @@
     </div>
 
     <script>
-        // App State with localStorage simulation (using variables)
+        // App State with user-specific data storage
         let userData = {
             currentUser: null,
-            userLinks: [],
-            linkUsageCount: 0,
-            lastHourTimestamp: Date.now(),
-            isPremium: false
+            users: {} // Store data per user: { email: { userLinks: [], linkUsageCount: 0, isPremium: false, etc } }
         };
 
         // Premium codes
@@ -781,25 +778,44 @@
         }
 
         function loadUserData() {
-            // In a real app, this would load from localStorage
-            // For demo purposes, we'll simulate persistence with a default user
             try {
                 const saved = localStorage.getItem('linkShrinkData');
                 if (saved) {
-                    userData = { ...userData, ...JSON.parse(saved) };
+                    const savedData = JSON.parse(saved);
+                    userData = { ...userData, ...savedData };
+                    
+                    // Ensure users object exists
+                    if (!userData.users) {
+                        userData.users = {};
+                    }
                 }
             } catch (e) {
                 console.log('localStorage not available, using memory storage');
+                userData.users = {};
             }
         }
 
         function saveUserData() {
-            // In a real app, this would save to localStorage
             try {
                 localStorage.setItem('linkShrinkData', JSON.stringify(userData));
             } catch (e) {
                 console.log('localStorage not available, data saved in memory only');
             }
+        }
+
+        function getCurrentUserData() {
+            if (!userData.currentUser) return null;
+            
+            const userKey = userData.currentUser.email;
+            if (!userData.users[userKey]) {
+                userData.users[userKey] = {
+                    userLinks: [],
+                    linkUsageCount: 0,
+                    lastHourTimestamp: Date.now(),
+                    isPremium: false
+                };
+            }
+            return userData.users[userKey];
         }
 
         function switchTab(tab) {
@@ -831,19 +847,24 @@
             }
             
             userData.currentUser = { username, email };
+            
+            // Initialize user data if they don't exist
+            if (!userData.users[email]) {
+                userData.users[email] = {
+                    userLinks: [],
+                    linkUsageCount: 0,
+                    lastHourTimestamp: Date.now(),
+                    isPremium: false
+                };
+            }
+            
             saveUserData();
             showMainApp();
             updateUI();
         }
 
         function handleLogout() {
-            userData = {
-                currentUser: null,
-                userLinks: [],
-                linkUsageCount: 0,
-                lastHourTimestamp: Date.now(),
-                isPremium: false
-            };
+            userData.currentUser = null;
             saveUserData();
             document.body.classList.remove('premium-theme');
             showAuthSection();
@@ -862,11 +883,14 @@
         function updateUI() {
             if (!userData.currentUser) return;
             
-            document.getElementById('welcomeText').textContent = `Welcome, ${userData.currentUser.username}!`;
-            document.getElementById('usageCounter').textContent = userData.isPremium ? 
-                'Premium - Unlimited' : `Links created: ${userData.linkUsageCount}/20 this hour`;
+            const currentUserData = getCurrentUserData();
+            if (!currentUserData) return;
             
-            if (userData.isPremium) {
+            document.getElementById('welcomeText').textContent = `Welcome, ${userData.currentUser.username}!`;
+            document.getElementById('usageCounter').textContent = currentUserData.isPremium ? 
+                'Premium - Unlimited' : `Links created: ${currentUserData.linkUsageCount}/20 this hour`;
+            
+            if (currentUserData.isPremium) {
                 document.body.classList.add('premium-theme');
                 document.getElementById('premiumBadge').style.display = 'flex';
                 document.getElementById('premiumLock').style.display = 'none';
@@ -879,7 +903,8 @@
         }
 
         function checkPremiumAlias() {
-            if (!userData.isPremium && document.getElementById('customAlias').value) {
+            const currentUserData = getCurrentUserData();
+            if (!currentUserData || (!currentUserData.isPremium && document.getElementById('customAlias').value)) {
                 document.getElementById('customAlias').value = '';
                 showModal('premiumModal');
             }
@@ -888,26 +913,28 @@
         function shortenUrl() {
             const url = document.getElementById('urlInput').value.trim();
             const customAlias = document.getElementById('customAlias').value.trim();
+            const currentUserData = getCurrentUserData();
             
+            if (!currentUserData) return alert('Please log in first');
             if (!url) return alert('Please enter a URL');
             
             try { new URL(url); } catch { return alert('Please enter a valid URL'); }
             
-            if (!userData.isPremium) {
-                if (Date.now() - userData.lastHourTimestamp > 3600000) {
-                    userData.linkUsageCount = 0;
-                    userData.lastHourTimestamp = Date.now();
+            if (!currentUserData.isPremium) {
+                if (Date.now() - currentUserData.lastHourTimestamp > 3600000) {
+                    currentUserData.linkUsageCount = 0;
+                    currentUserData.lastHourTimestamp = Date.now();
                 }
-                if (userData.linkUsageCount >= 20) return showModal('rateLimitModal');
+                if (currentUserData.linkUsageCount >= 20) return showModal('rateLimitModal');
             }
             
-            if (customAlias && !userData.isPremium) return showModal('premiumModal');
+            if (customAlias && !currentUserData.isPremium) return showModal('premiumModal');
             
             const shortCode = customAlias || generateShortCode();
             const displayUrl = `lnkshrink.io/${shortCode}`;
             const actualRedirectUrl = `${window.location.origin}${window.location.pathname}?redirect=${encodeURIComponent(url)}`;
             
-            if (userData.userLinks.find(link => link.shortCode === shortCode)) {
+            if (currentUserData.userLinks.find(link => link.shortCode === shortCode)) {
                 return alert('This alias is already taken. Please choose another one.');
             }
             
@@ -921,8 +948,8 @@
                 createdAt: new Date().toISOString()
             };
             
-            userData.userLinks.push(linkData);
-            if (!userData.isPremium) userData.linkUsageCount++;
+            currentUserData.userLinks.push(linkData);
+            if (!currentUserData.isPremium) currentUserData.linkUsageCount++;
             
             saveUserData();
             updateUI();
@@ -985,10 +1012,13 @@
 
         function redeemPremium() {
             const code = document.getElementById('premiumCode').value.trim().toUpperCase();
+            const currentUserData = getCurrentUserData();
+            
+            if (!currentUserData) return alert('Please log in first');
             if (!code) return alert('Please enter a premium code');
             
             if (PREMIUM_CODES.includes(code)) {
-                userData.isPremium = true;
+                currentUserData.isPremium = true;
                 saveUserData();
                 updateUI();
                 showModal('successModal');
