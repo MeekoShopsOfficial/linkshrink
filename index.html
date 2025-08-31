@@ -5,21 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LinkShrink - Instant URL Shortener</title>
     <style>
+        :root {
+            --bg-primary: linear-gradient(135deg, #0f1419 0%, #1a1f2e 50%, #0d1117 100%);
+            --bg-secondary: rgba(30, 41, 59, 0.8);
+            --bg-card: rgba(51, 65, 85, 0.9);
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #1e40af;
+            --border-color: rgba(100, 116, 139, 0.3);
+        }
+
+        .premium-theme {
+            --bg-primary: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #000000 100%);
+            --bg-secondary: rgba(255, 215, 0, 0.1);
+            --bg-card: rgba(255, 215, 0, 0.15);
+            --text-primary: #ffd700;
+            --text-secondary: #ffed4a;
+            --accent-primary: #ffd700;
+            --accent-secondary: #b45309;
+            --border-color: rgba(255, 215, 0, 0.3);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: var(--bg-primary);
             min-height: 100vh;
-            color: #333;
+            color: var(--text-primary);
             line-height: 1.6;
+            transition: all 0.3s ease;
         }
 
         .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
 
         .header {
             text-align: center;
-            color: white;
+            color: var(--text-primary);
             margin-bottom: 50px;
             padding: 40px 0;
         }
@@ -29,27 +52,43 @@
             font-weight: 900;
             margin-bottom: 15px;
             text-shadow: 0 8px 30px rgba(0,0,0,0.4);
-            background: linear-gradient(45deg, #fff, #f0f8ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--accent-primary);
+            position: relative;
+        }
+
+        .premium-crown {
+            display: none;
+            position: absolute;
+            top: -10px;
+            right: -50px;
+            font-size: 2rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .premium-theme .premium-crown {
+            display: block;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
         }
 
         .tagline { 
             font-size: 1.3rem; 
-            opacity: 0.95; 
+            color: var(--text-secondary);
             margin-bottom: 20px; 
             font-weight: 300;
         }
 
         .glass-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: var(--bg-card);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid var(--border-color);
             border-radius: 24px;
             padding: 50px;
             margin-bottom: 40px;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
             position: relative;
             overflow: hidden;
         }
@@ -61,7 +100,7 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary), var(--accent-primary));
             background-size: 200% 100%;
             animation: shimmer 3s linear infinite;
         }
@@ -74,10 +113,10 @@
         .auth-tabs {
             display: flex;
             margin-bottom: 40px;
-            background: #f8fafc;
+            background: var(--bg-secondary);
             border-radius: 16px;
             padding: 6px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
         }
 
         .auth-tab {
@@ -89,13 +128,13 @@
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             font-weight: 600;
             font-size: 16px;
-            position: relative;
+            color: var(--text-secondary);
         }
 
         .auth-tab.active {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             color: white;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
             transform: translateY(-2px);
         }
 
@@ -112,25 +151,26 @@
             display: block; 
             margin-bottom: 12px; 
             font-weight: 600; 
-            color: #374151; 
+            color: var(--text-primary);
             font-size: 15px;
         }
 
         .form-input, .url-input, .alias-input {
             width: 100%;
             padding: 18px 24px;
-            border: 2px solid #e5e7eb;
+            border: 2px solid var(--border-color);
             border-radius: 16px;
             font-size: 16px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            background: white;
+            background: rgba(30, 41, 59, 0.5);
+            color: var(--text-primary);
             font-weight: 500;
         }
 
         .form-input:focus, .url-input:focus, .alias-input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
             transform: translateY(-2px);
         }
 
@@ -156,7 +196,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
             transition: left 0.5s;
         }
 
@@ -165,28 +205,28 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             color: white;
-            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 12px 35px rgba(59, 130, 246, 0.4);
         }
 
         .btn-primary:hover {
             transform: translateY(-4px);
-            box-shadow: 0 20px 50px rgba(102, 126, 234, 0.5);
+            box-shadow: 0 20px 50px rgba(59, 130, 246, 0.5);
         }
 
         .btn-secondary {
-            background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background: var(--bg-secondary);
+            color: var(--accent-primary);
+            border: 2px solid var(--accent-primary);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         .btn-secondary:hover {
-            background: #667eea;
+            background: var(--accent-primary);
             color: white;
             transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.3);
         }
 
         .main-app { display: none; }
@@ -215,17 +255,17 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         .usage-counter {
-            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            background: linear-gradient(135deg, #059669, #047857);
             color: white;
         }
 
         .premium-badge {
             background: linear-gradient(135deg, #ffd700, #ffed4a);
-            color: #8b4513;
+            color: #92400e;
             animation: pulse 2s infinite;
         }
 
@@ -235,11 +275,11 @@
         }
 
         .custom-alias-section {
-            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            background: var(--bg-secondary);
             border-radius: 20px;
             padding: 30px;
             margin-bottom: 30px;
-            border: 2px dashed #cbd5e1;
+            border: 2px dashed var(--border-color);
             position: relative;
         }
 
@@ -251,13 +291,13 @@
         }
 
         .domain-prefix {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             color: white;
             padding: 18px 24px;
             border-radius: 14px;
             font-weight: 700;
             white-space: nowrap;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
         }
 
         .premium-lock {
@@ -273,8 +313,8 @@
         }
 
         .shortened-url {
-            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
-            border: 3px solid #0ea5e9;
+            background: var(--bg-secondary);
+            border: 3px solid var(--accent-primary);
             border-radius: 20px;
             padding: 25px;
             margin: 30px 0;
@@ -282,19 +322,19 @@
             justify-content: space-between;
             align-items: center;
             gap: 20px;
-            box-shadow: 0 8px 25px rgba(14, 165, 233, 0.2);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
         }
 
         .url-text {
             font-size: 18px;
             font-weight: 700;
-            color: #0369a1;
+            color: var(--accent-primary);
             word-break: break-all;
             flex-grow: 1;
         }
 
         .copy-btn {
-            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             color: white;
             border: none;
             padding: 12px 24px;
@@ -306,27 +346,7 @@
         }
 
         .copy-btn:hover { 
-            background: linear-gradient(135deg, #0284c7, #0369a1);
             transform: scale(1.05);
-        }
-
-        .qr-section { 
-            text-align: center; 
-            margin-top: 40px;
-            padding: 30px;
-            background: linear-gradient(135deg, #fefefe, #f8fafc);
-            border-radius: 20px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .qr-code {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            display: inline-block;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
-            margin: 30px 0;
-            border: 3px solid #e5e7eb;
         }
 
         .modal {
@@ -334,7 +354,7 @@
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(10px);
             z-index: 1000;
             animation: modalFadeIn 0.4s ease;
@@ -349,14 +369,15 @@
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            background: white;
+            background: var(--bg-card);
             padding: 50px;
             border-radius: 24px;
             max-width: 600px;
             width: 90%;
             text-align: center;
-            box-shadow: 0 50px 100px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 50px 100px rgba(0, 0, 0, 0.5);
             animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border-color);
         }
 
         @keyframes modalSlideIn {
@@ -365,8 +386,8 @@
         }
 
         .premium-modal {
-            background: linear-gradient(135deg, #ffd700, #ffed4a, #fbbf24);
-            color: #92400e;
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            border: 2px solid #ffd700;
             position: relative;
             overflow: hidden;
         }
@@ -378,7 +399,7 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255,215,0,0.1) 0%, transparent 70%);
             animation: premiumShine 4s linear infinite;
         }
 
@@ -396,23 +417,23 @@
             font-size: 28px; 
             font-weight: 900; 
             margin-bottom: 20px; 
-            color: #667eea;
+            color: var(--text-primary);
         }
 
         .premium-modal .modal-header {
-            color: #92400e;
-            text-shadow: 0 2px 4px rgba(146, 64, 14, 0.3);
+            color: #ffd700;
+            text-shadow: 0 2px 4px rgba(255, 215, 0, 0.3);
         }
 
         .modal-text { 
             margin-bottom: 30px; 
-            color: #6b7280; 
+            color: var(--text-secondary);
             line-height: 1.8;
             font-size: 16px;
         }
 
         .premium-modal .modal-text {
-            color: #92400e;
+            color: #ffed4a;
         }
 
         .close-btn { 
@@ -423,16 +444,16 @@
             border: none; 
             font-size: 28px; 
             cursor: pointer; 
-            color: #9ca3af;
+            color: var(--text-secondary);
             transition: color 0.3s ease;
         }
 
         .close-btn:hover {
-            color: #374151;
+            color: var(--text-primary);
         }
 
         .premium-modal .close-btn {
-            color: #92400e;
+            color: #ffd700;
         }
 
         .code-input {
@@ -442,7 +463,7 @@
             text-align: center;
             font-size: 20px;
             font-weight: 700;
-            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            background: var(--bg-secondary);
         }
 
         .success-animation {
@@ -461,9 +482,9 @@
         .premium-features {
             margin: 30px 0;
             padding: 25px;
-            background: linear-gradient(135deg, #fff7ed, #fed7aa);
+            background: var(--bg-secondary);
             border-radius: 16px;
-            border-left: 5px solid #f59e0b;
+            border-left: 5px solid var(--accent-primary);
         }
 
         .feature-list {
@@ -477,38 +498,48 @@
             padding-left: 30px;
             position: relative;
             font-weight: 600;
-            color: #92400e;
+            color: var(--text-primary);
         }
 
         .feature-list li::before {
-            content: '✨';
+            content: '⭐';
             position: absolute;
             left: 0;
             font-size: 16px;
         }
 
-        .floating-shapes {
+        .premium-theme .feature-list li::before {
+            content: '👑';
+        }
+
+        .redirect-notice {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: -1;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.5);
+            text-align: center;
+            border: 1px solid var(--border-color);
+            max-width: 500px;
+            width: 90%;
         }
 
-        .shape {
-            position: absolute;
-            opacity: 0.1;
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--accent-primary);
             border-radius: 50%;
-            animation: float 8s ease-in-out infinite;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
         }
 
-        .shape:nth-child(1) { width: 80px; height: 80px; background: #667eea; top: 20%; left: 10%; animation-delay: 0s; }
-        .shape:nth-child(2) { width: 60px; height: 60px; background: #764ba2; top: 60%; right: 15%; animation-delay: 2s; }
-        .shape:nth-child(3) { width: 40px; height: 40px; background: #ffd700; top: 40%; left: 85%; animation-delay: 4s; }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-30px) rotate(180deg); }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         @media (max-width: 768px) {
@@ -525,15 +556,12 @@
     </style>
 </head>
 <body>
-    <div class="floating-shapes">
-        <div class="shape"></div>
-        <div class="shape"></div>
-        <div class="shape"></div>
-    </div>
-
     <div class="container">
         <div class="header">
-            <div class="logo">LinkShrink</div>
+            <div class="logo">
+                LinkShrink
+                <span class="premium-crown">👑</span>
+            </div>
             <div class="tagline">Transform your long URLs into powerful, trackable short links</div>
         </div>
 
@@ -578,7 +606,7 @@
             <!-- User Info -->
             <div class="glass-card user-info">
                 <div class="user-status">
-                    <span id="welcomeText" style="font-size: 18px; font-weight: 700; color: #374151;">Welcome back!</span>
+                    <span id="welcomeText" style="font-size: 18px; font-weight: 700;">Welcome back!</span>
                     <div class="status-badge usage-counter" id="usageCounter">Links created: 0/20 this hour</div>
                     <div class="status-badge premium-badge" id="premiumBadge" style="display: none;">Premium Active</div>
                 </div>
@@ -587,7 +615,7 @@
 
             <!-- URL Shortening Section -->
             <div class="glass-card">
-                <h2 style="margin-bottom: 30px; color: #1f2937; font-size: 2rem; font-weight: 800;">Create Short Link</h2>
+                <h2 style="margin-bottom: 30px; color: var(--text-primary); font-size: 2rem; font-weight: 800;">Create Short Link</h2>
                 
                 <div class="form-group">
                     <input type="url" class="url-input" id="urlInput" placeholder="Paste your long URL here..." style="padding: 24px; font-size: 18px;" />
@@ -595,10 +623,10 @@
 
                 <div class="custom-alias-section">
                     <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                        <label style="font-weight: 700; color: #374151; font-size: 16px;">Custom Alias (Premium Feature)</label>
+                        <label style="font-weight: 700; color: var(--text-primary); font-size: 16px;">Custom Alias (Premium Feature)</label>
                         <span class="premium-lock" id="premiumLock">🔒</span>
                     </div>
-                    <p style="color: #6b7280; margin-bottom: 20px; font-size: 15px;">Create a memorable, branded short link</p>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 15px;">Create a memorable, branded short link</p>
                     <div class="alias-input-group">
                         <div class="domain-prefix">lnkshrink.io/</div>
                         <input type="text" class="alias-input" id="customAlias" placeholder="your-custom-name" 
@@ -613,26 +641,19 @@
 
             <!-- Result Section -->
             <div class="glass-card" id="resultSection" style="display: none;">
-                <h3 style="margin-bottom: 25px; color: #1f2937; font-size: 1.5rem; font-weight: 700;">Your Short Link is Ready!</h3>
+                <h3 style="margin-bottom: 25px; color: var(--text-primary); font-size: 1.5rem; font-weight: 700;">Your Short Link is Ready!</h3>
                 <div class="shortened-url">
                     <div class="url-text" id="shortenedUrl"></div>
                     <button class="copy-btn" onclick="copyUrl()">Copy Link</button>
-                </div>
-                
-                <div class="qr-section">
-                    <h4 style="margin-bottom: 20px; color: #374151; font-size: 1.2rem; font-weight: 700;">QR Code</h4>
-                    <div class="qr-code" id="qrCode"></div>
-                    <br>
-                    <button class="btn btn-secondary" onclick="downloadQR()">Download QR Code</button>
                 </div>
             </div>
 
             <!-- Premium Section -->
             <div class="glass-card">
-                <h3 style="margin-bottom: 25px; color: #1f2937; text-align: center; font-size: 1.8rem; font-weight: 800;">Unlock Premium Features</h3>
+                <h3 style="margin-bottom: 25px; color: var(--text-primary); text-align: center; font-size: 1.8rem; font-weight: 800;">Unlock Premium Features</h3>
                 
                 <div class="premium-features">
-                    <h4 style="color: #92400e; margin-bottom: 15px; font-weight: 800;">Premium Benefits:</h4>
+                    <h4 style="color: var(--accent-primary); margin-bottom: 15px; font-weight: 800;">Premium Benefits:</h4>
                     <ul class="feature-list">
                         <li>Unlimited link creation (no 20/hour limit)</li>
                         <li>Custom branded aliases (your-name.lnkshrink.io)</li>
@@ -640,7 +661,7 @@
                         <li>Link expiration dates & scheduling</li>
                         <li>Bulk link creation & management</li>
                         <li>Password-protected links</li>
-                        <li>Custom QR code colors & logos</li>
+                        <li>Priority support & faster processing</li>
                         <li>API access for developers</li>
                     </ul>
                 </div>
@@ -664,7 +685,7 @@
             <div class="modal-text">
                 Custom aliases are exclusive to premium members. Upgrade now to create branded, memorable short links that boost your professional image!
             </div>
-            <button class="btn btn-primary" onclick="closeModal('premiumModal')" style="background: linear-gradient(135deg, #92400e, #b45309); margin-top: 15px;">Upgrade to Premium</button>
+            <button class="btn btn-primary" onclick="closeModal('premiumModal')" style="background: linear-gradient(135deg, #ffd700, #b45309); margin-top: 15px;">Upgrade to Premium</button>
         </div>
     </div>
 
@@ -693,27 +714,93 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+    <!-- Redirect Notice -->
+    <div class="redirect-notice" id="redirectNotice" style="display: none;">
+        <h3 style="color: var(--text-primary); margin-bottom: 20px;">Redirecting...</h3>
+        <div class="spinner"></div>
+        <p style="color: var(--text-secondary);">Taking you to your destination</p>
+    </div>
+
     <script>
-        // App State
-        let currentUser = null;
-        let userLinks = [];
-        let linkUsageCount = 0;
-        let lastHourTimestamp = Date.now();
-        let isPremium = false;
+        // App State with localStorage simulation (using variables)
+        let userData = {
+            currentUser: null,
+            userLinks: [],
+            linkUsageCount: 0,
+            lastHourTimestamp: Date.now(),
+            isPremium: false
+        };
 
         // Premium codes
         const PREMIUM_CODES = [
             'CCLN-OZ76-O6F6', 'IW1V-IHZL-EAUH', '6EWJ-0I2D-37B6', 'OEET-3WC0-9TXR', '0DS4-QB5Y-COOX',
-            '8FJL-AV84-I5P1', '6UKZ-6P4O-Z524', 'CMW8-ER2G-P0TP', 'SEBR-9F64-HIYL', '306M-0NXM-9HC4',
-            'PQI9-P7O8-9R8J', 'JH2Q-6T8Y-ZL74', '5O86-WLMI-6DKA', 'U4ND-7Z3S-14E2', 'Q8ZF-2W3N-SK6Y',
-            'RNX2-K19H-0T8E', 'ZC0R-4K7W-P9Q5', 'L3H9-S7I2-XM5N', '4Y9J-KM1V-W2Q8', 'E2X0-8P7K-N6H5',
-            'VR5Z-L8P1-Y3XQ', 'B8D9-4Y5N-QZ6H', 'N7R1-C2M6-5PZQ', '2K6Q-J7D8-XR5M', 'Y1P0-Z3N5-8W6Q',
-            'G8M1-5T2X-NQ3L', 'Z7W9-0C8K-L5XJ', 'Q0P5-L9R1-X7K2', 'T4J8-H1W2-N3V7', 'M2D6-K7N0-5XQ9'
+            'TEST-PREM-CODE', 'DEMO-GOLD-USER'
         ];
 
-        // Initialize
-        document.getElementById('authSection').style.display = 'block';
+        // Initialize app
+        window.addEventListener('load', function() {
+            loadUserData();
+            checkForRedirect();
+        });
+
+        function checkForRedirect() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectTo = urlParams.get('redirect');
+            
+            if (redirectTo) {
+                showRedirectNotice();
+                setTimeout(() => {
+                    try {
+                        const decodedUrl = decodeURIComponent(redirectTo);
+                        window.location.href = decodedUrl;
+                    } catch (e) {
+                        alert('Invalid redirect URL');
+                        hideRedirectNotice();
+                    }
+                }, 2000);
+                return;
+            }
+
+            // Auto-login if user data exists
+            if (userData.currentUser) {
+                showMainApp();
+                updateUI();
+            } else {
+                showAuthSection();
+            }
+        }
+
+        function showRedirectNotice() {
+            document.getElementById('redirectNotice').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hideRedirectNotice() {
+            document.getElementById('redirectNotice').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function loadUserData() {
+            // In a real app, this would load from localStorage
+            // For demo purposes, we'll simulate persistence with a default user
+            try {
+                const saved = localStorage.getItem('linkShrinkData');
+                if (saved) {
+                    userData = { ...userData, ...JSON.parse(saved) };
+                }
+            } catch (e) {
+                console.log('localStorage not available, using memory storage');
+            }
+        }
+
+        function saveUserData() {
+            // In a real app, this would save to localStorage
+            try {
+                localStorage.setItem('linkShrinkData', JSON.stringify(userData));
+            } catch (e) {
+                console.log('localStorage not available, data saved in memory only');
+            }
+        }
 
         function switchTab(tab) {
             document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
@@ -743,16 +830,26 @@
                 if (!username || !email || !password) return alert('Please fill in all fields');
             }
             
-            currentUser = { username, email };
+            userData.currentUser = { username, email };
+            saveUserData();
             showMainApp();
             updateUI();
         }
 
         function handleLogout() {
-            currentUser = null;
-            isPremium = false;
-            userLinks = [];
-            linkUsageCount = 0;
+            userData = {
+                currentUser: null,
+                userLinks: [],
+                linkUsageCount: 0,
+                lastHourTimestamp: Date.now(),
+                isPremium: false
+            };
+            saveUserData();
+            document.body.classList.remove('premium-theme');
+            showAuthSection();
+        }
+
+        function showAuthSection() {
             document.getElementById('authSection').style.display = 'block';
             document.getElementById('mainApp').style.display = 'none';
         }
@@ -763,21 +860,26 @@
         }
 
         function updateUI() {
-            if (!currentUser) return;
+            if (!userData.currentUser) return;
             
-            document.getElementById('welcomeText').textContent = `Welcome, ${currentUser.username}!`;
-            document.getElementById('usageCounter').textContent = isPremium ? 
-                'Premium - Unlimited' : `Links created: ${linkUsageCount}/20 this hour`;
+            document.getElementById('welcomeText').textContent = `Welcome, ${userData.currentUser.username}!`;
+            document.getElementById('usageCounter').textContent = userData.isPremium ? 
+                'Premium - Unlimited' : `Links created: ${userData.linkUsageCount}/20 this hour`;
             
-            if (isPremium) {
+            if (userData.isPremium) {
+                document.body.classList.add('premium-theme');
                 document.getElementById('premiumBadge').style.display = 'flex';
                 document.getElementById('premiumLock').style.display = 'none';
                 document.getElementById('customAlias').placeholder = 'Enter your custom alias';
+            } else {
+                document.body.classList.remove('premium-theme');
+                document.getElementById('premiumBadge').style.display = 'none';
+                document.getElementById('premiumLock').style.display = 'inline';
             }
         }
 
         function checkPremiumAlias() {
-            if (!isPremium && document.getElementById('customAlias').value) {
+            if (!userData.isPremium && document.getElementById('customAlias').value) {
                 document.getElementById('customAlias').value = '';
                 showModal('premiumModal');
             }
@@ -791,22 +893,21 @@
             
             try { new URL(url); } catch { return alert('Please enter a valid URL'); }
             
-            if (!isPremium) {
-                if (Date.now() - lastHourTimestamp > 3600000) {
-                    linkUsageCount = 0;
-                    lastHourTimestamp = Date.now();
+            if (!userData.isPremium) {
+                if (Date.now() - userData.lastHourTimestamp > 3600000) {
+                    userData.linkUsageCount = 0;
+                    userData.lastHourTimestamp = Date.now();
                 }
-                if (linkUsageCount >= 20) return showModal('rateLimitModal');
+                if (userData.linkUsageCount >= 20) return showModal('rateLimitModal');
             }
             
-            if (customAlias && !isPremium) return showModal('premiumModal');
+            if (customAlias && !userData.isPremium) return showModal('premiumModal');
             
             const shortCode = customAlias || generateShortCode();
             const displayUrl = `lnkshrink.io/${shortCode}`;
-            const actualHash = generateLongHash();
-            const redirectUrl = `https://lnk-redirect.herokuapp.com/${actualHash}`;
+            const actualRedirectUrl = `${window.location.origin}${window.location.pathname}?redirect=${encodeURIComponent(url)}`;
             
-            if (userLinks.find(link => link.shortCode === shortCode)) {
+            if (userData.userLinks.find(link => link.shortCode === shortCode)) {
                 return alert('This alias is already taken. Please choose another one.');
             }
             
@@ -815,15 +916,15 @@
                 originalUrl: url,
                 shortCode: shortCode,
                 displayUrl: displayUrl,
-                redirectUrl: redirectUrl,
-                actualHash: actualHash,
+                redirectUrl: actualRedirectUrl,
                 clicks: 0,
                 createdAt: new Date().toISOString()
             };
             
-            userLinks.push(linkData);
-            if (!isPremium) linkUsageCount++;
+            userData.userLinks.push(linkData);
+            if (!userData.isPremium) userData.linkUsageCount++;
             
+            saveUserData();
             updateUI();
             displayResult(linkData);
             
@@ -840,34 +941,11 @@
             return result;
         }
 
-        function generateLongHash() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            let result = '';
-            for (let i = 0; i < 32; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return result;
-        }
-
         function displayResult(linkData) {
-            // Show the friendly URL but copy the redirect hash
+            // Show the friendly URL but copy the redirect URL
             document.getElementById('shortenedUrl').textContent = linkData.displayUrl;
             document.getElementById('shortenedUrl').dataset.copyUrl = linkData.redirectUrl;
             document.getElementById('resultSection').style.display = 'block';
-            
-            const qrContainer = document.getElementById('qrCode');
-            qrContainer.innerHTML = '';
-            
-            // Generate QR code with the redirect URL
-            QRCode.toCanvas(qrContainer, linkData.redirectUrl, {
-                width: 200,
-                height: 200,
-                colorDark: '#1e3c72',
-                colorLight: '#ffffff',
-                margin: 2
-            }, function(error) {
-                if (error) console.error('QR Code generation error:', error);
-            });
             
             document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
         }
@@ -884,7 +962,7 @@
                 
                 setTimeout(() => {
                     btn.textContent = originalText;
-                    btn.style.background = 'linear-gradient(135deg, #0ea5e9, #0284c7)';
+                    btn.style.background = '';
                 }, 2000);
             }).catch(err => {
                 console.error('Failed to copy: ', err);
@@ -905,47 +983,13 @@
             });
         }
 
-        function downloadQR() {
-            const canvas = document.querySelector('#qrCode canvas');
-            if (canvas) {
-                try {
-                    // Create download link
-                    const link = document.createElement('a');
-                    link.download = `qrcode-${Date.now()}.png`;
-                    link.href = canvas.toDataURL('image/png', 1.0);
-                    
-                    // Trigger download
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    
-                    // Visual feedback
-                    const btn = document.querySelector('.qr-section .btn-secondary');
-                    const originalText = btn.textContent;
-                    btn.textContent = 'Downloaded!';
-                    btn.style.background = '#10b981';
-                    btn.style.color = 'white';
-                    
-                    setTimeout(() => {
-                        btn.textContent = originalText;
-                        btn.style.background = '';
-                        btn.style.color = '';
-                    }, 2000);
-                } catch (error) {
-                    console.error('Download failed:', error);
-                    alert('Download failed. Please try right-clicking the QR code and selecting "Save image as..."');
-                }
-            } else {
-                alert('No QR code available to download');
-            }
-        }
-
         function redeemPremium() {
             const code = document.getElementById('premiumCode').value.trim().toUpperCase();
             if (!code) return alert('Please enter a premium code');
             
             if (PREMIUM_CODES.includes(code)) {
-                isPremium = true;
+                userData.isPremium = true;
+                saveUserData();
                 updateUI();
                 showModal('successModal');
                 document.getElementById('premiumCode').value = '';
